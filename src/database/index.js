@@ -1,11 +1,9 @@
 import * as SQLite from "expo-sqlite";
 
-// Abre o banco
 const getDB = async () => {
   return await SQLite.openDatabaseAsync("concessionaria.db");
 };
 
-// Inicializa tabelas
 export const initDB = async () => {
   const db = await getDB();
   await db.execAsync(`
@@ -30,10 +28,6 @@ export const initDB = async () => {
   `);
 };
 
-/* ============================================================
-                    CARROS (CRUD)
-   ============================================================ */
-
 export const addCarro = async (marca, modelo, ano, preco) => {
   const db = await getDB();
   const result = await db.runAsync(
@@ -45,8 +39,7 @@ export const addCarro = async (marca, modelo, ano, preco) => {
 
 export const getCarros = async () => {
   const db = await getDB();
-  const allRows = await db.getAllAsync("SELECT * FROM carros ORDER BY id DESC");
-  return allRows;
+  return await db.getAllAsync("SELECT * FROM carros ORDER BY id DESC");
 };
 
 export const deleteCarro = async (id) => {
@@ -62,15 +55,10 @@ export const updateCarro = async (id, marca, modelo, ano, preco) => {
   );
 };
 
-// Alterna status vendido (0/1)
 export const toggleVendido = async (id, vendido) => {
   const db = await getDB();
   await db.runAsync("UPDATE carros SET vendido = ? WHERE id = ?", [vendido, id]);
 };
-
-/* ============================================================
-                    VENDAS (CRUD)
-   ============================================================ */
 
 export const addVenda = async (carro_id, data, descricao) => {
   const db = await getDB();
@@ -83,7 +71,7 @@ export const addVenda = async (carro_id, data, descricao) => {
 
 export const getVendas = async () => {
   const db = await getDB();
-  const rows = await db.getAllAsync(`
+  return await db.getAllAsync(`
     SELECT
       vendas.id,
       vendas.carro_id,
@@ -97,7 +85,6 @@ export const getVendas = async () => {
     JOIN carros ON carros.id = vendas.carro_id
     ORDER BY vendas.data DESC
   `);
-  return rows;
 };
 
 export const deleteVenda = async (id) => {
