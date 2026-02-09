@@ -18,6 +18,11 @@ export const initDB = async () => {
       vendido INTEGER NOT NULL DEFAULT 0
     );
 
+    CREATE TABLE IF NOT EXISTS clientes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      nome TEXT NOT NULL
+    );
+
     CREATE TABLE IF NOT EXISTS vendas (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       carro_id INTEGER NOT NULL,
@@ -97,5 +102,32 @@ export const updateVenda = async (id, carro_id, data, descricao) => {
   await db.runAsync(
     "UPDATE vendas SET carro_id = ?, data = ?, descricao = ? WHERE id = ?",
     [carro_id, data, descricao, id]
+  );
+};
+
+export const addCliente = async (nome) => {
+  const db = await getDB();
+  const result = await db.runAsync(
+    "INSERT INTO clientes (nome) VALUES (?)",
+    [nome]
+  );
+  return result.lastInsertRowId;
+};
+
+export const getClientes = async () => {
+  const db = await getDB();
+  return await db.getAllAsync("SELECT * FROM clientes ORDER BY id DESC");
+};
+
+export const deleteCliente = async (id) => {
+  const db = await getDB();
+  await db.runAsync("DELETE FROM clientes WHERE id = ?", [id]);
+};
+
+export const updateCliente = async (id, nome) => {
+  const db = await getDB();
+  await db.runAsync(
+    "UPDATE clientes SET nome = ? WHERE id = ?",
+    [nome, id]
   );
 };

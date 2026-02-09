@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, StyleSheet, Alert } from "react-native";
+import { View, Text, FlatList, StyleSheet, Alert, Image } from "react-native";
 import { initDB } from "../../src/database";
 import { CarroService } from "../../src/services/carroService";
 import CarroForm from "../../src/components/CarroForm";
@@ -62,6 +62,7 @@ export default function CarrosScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Carros</Text>
+      
 
       <CarroForm
         marca={marca} setMarca={setMarca}
