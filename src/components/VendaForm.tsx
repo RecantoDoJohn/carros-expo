@@ -2,10 +2,11 @@ import React from "react";
 import { View, TextInput, Button, StyleSheet } from "react-native";
 import { COLORS } from "../theme/colors";
 
-export default function VendaForm({ carroId, setCarroId, dataVenda, setDataVenda, descricao, setDescricao, onSalvar }) {
+export default function VendaForm({ carroId, setCarroId, clienteId, setClienteId, dataVenda, setDataVenda, descricao, setDescricao, onSalvar }) {
   return (
     <View style={styles.form}>
       <TextInput placeholder="ID do Carro" value={carroId} onChangeText={setCarroId} keyboardType="numeric" style={styles.input} />
+      <TextInput placeholder="ID do Cliente" value={clienteId} onChangeText={setClienteId} keyboardType="numeric" style={styles.input} />
       <TextInput placeholder="Data (DD/MM/AAAA)" value={dataVenda} onChangeText={setDataVenda} style={styles.input} />
       <TextInput placeholder="Descrição da venda" value={descricao} onChangeText={setDescricao} style={styles.input} />
       <Button title="SALVAR VENDA" color={COLORS.primary} onPress={onSalvar} />

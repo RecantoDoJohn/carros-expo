@@ -40,13 +40,7 @@ export default function CarroItem({ item, onEditar, onExcluir, onToggleVendido }
           <Button title="Editar" color={COLORS.primary} onPress={() => onEditar(item)} />
         </View>
 
-        <View style={styles.btn}>
-          <Button
-            title={item.vendido ? "Desfazer" : "Vender"}
-            color={COLORS.primaryDark}
-            onPress={() => onToggleVendido(item.id, item.vendido)}
-          />
-        </View>
+
 
         <View style={styles.btn}>
           <Button title="X" color={COLORS.danger} onPress={() => onExcluir(item.id)} />

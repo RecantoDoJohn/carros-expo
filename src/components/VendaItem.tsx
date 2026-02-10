@@ -8,6 +8,7 @@ export default function VendaItem({ item, onEditar, onExcluir }) {
       <View style={{ flex: 1, paddingRight: 10 }}>
         <Text style={styles.nome}>Venda #{item.id}</Text>
         <Text style={styles.text}>Carro: {item.marca_carro} {item.modelo_carro} ({item.ano_carro})</Text>
+        <Text style={styles.text}>Carro: {item.cliente_nome}</Text>
         <Text style={styles.text}>Preço do carro: R$ {Number(item.preco_carro).toFixed(2)}</Text>
         <Text style={styles.text}>Data: {item.data}</Text>
         <Text style={styles.text}>Descrição: {item.descricao}</Text>

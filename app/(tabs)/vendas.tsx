@@ -10,6 +10,7 @@ import VendaItem from "../../src/components/VendaItem";
 
 export default function VendasScreen() {
   const [carroId, setCarroId] = useState("");
+  const [clienteId, setClienteId] = useState("");
   const [dataVenda, setDataVenda] = useState("");
   const [descricao, setDescricao] = useState("");
   const [listaVendas, setListaVendas] = useState<any[]>([]);
@@ -32,6 +33,7 @@ export default function VendasScreen() {
       await VendaService.salvar({
         id: idEdicao,
         carro_id: carroId,
+        cliente_id: clienteId,
         data: dataVenda,
         descricao,
       });
@@ -50,6 +52,7 @@ export default function VendasScreen() {
   const editar = (v: any) => {
     setIdEdicao(v.id);
     setCarroId(String(v.carro_id));
+    setClienteId(String(v.cliente_id));
     setDataVenda(v.data);
     setDescricao(v.descricao);
   };
@@ -66,6 +69,8 @@ export default function VendasScreen() {
       <VendaForm
         carroId={carroId}
         setCarroId={setCarroId}
+        clienteId={clienteId}
+        setClienteId={setClienteId}
         dataVenda={dataVenda}
         setDataVenda={setDataVenda}
         descricao={descricao}
