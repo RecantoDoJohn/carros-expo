@@ -1,16 +1,31 @@
 import React from "react";
-import { View, Text, Button, StyleSheet } from "react-native";
+import { View, Text, Button, StyleSheet, Image } from "react-native";
 import { COLORS } from "../theme/colors";
 
 export default function CarroItem({ item, onEditar, onExcluir, onToggleVendido }) {
   return (
     <View style={styles.card}>
-      
-      {/* INFORMAÇÕES */}
-      <View style={styles.info}>
-        <Text style={styles.nome}>{item.marca} {item.modelo}</Text>
+      {/* área da imagem (sempre reserva espaço) */}
+      <View style={styles.imageContainer}>
+        {item.imagemUri ? (
+          <Image source={{ uri: item.imagemUri }} style={styles.image} resizeMode="cover" />
+        ) : (
+          <Text style={styles.imagePlaceholder}>Sem imagem</Text>
+        )}
 
-        <Text style={styles.text}>
+        {item.vendido ? (
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>VENDIDO</Text>
+          </View>
+        ) : null}
+      </View>
+
+      <View style={styles.info}>
+        <Text style={styles.nome} numberOfLines={1}>
+          {item.marca} {item.modelo}
+        </Text>
+
+        <Text style={styles.text} numberOfLines={1}>
           ID: {item.id} | Ano: {item.ano} | Preço: R$ {Number(item.preco).toFixed(2)}
         </Text>
 
@@ -19,14 +34,10 @@ export default function CarroItem({ item, onEditar, onExcluir, onToggleVendido }
         </Text>
       </View>
 
-      {/* BOTÕES EM LINHA */}
+      {/* botões em linha */}
       <View style={styles.actionsRow}>
         <View style={styles.btn}>
-          <Button
-            title="Editar"
-            color={COLORS.primary}
-            onPress={() => onEditar(item)}
-          />
+          <Button title="Editar" color={COLORS.primary} onPress={() => onEditar(item)} />
         </View>
 
         <View style={styles.btn}>
@@ -38,11 +49,7 @@ export default function CarroItem({ item, onEditar, onExcluir, onToggleVendido }
         </View>
 
         <View style={styles.btn}>
-          <Button
-            title="X"
-            color={COLORS.danger}
-            onPress={() => onExcluir(item.id)}
-          />
+          <Button title="X" color={COLORS.danger} onPress={() => onExcluir(item.id)} />
         </View>
       </View>
     </View>
@@ -60,27 +67,36 @@ const styles = StyleSheet.create({
     borderLeftColor: COLORS.primary,
   },
 
-  info: {
-    marginBottom: 12,
+  imageContainer: {
+    width: "100%",
+    height: 160,
+    borderRadius: 10,
+    marginBottom: 10,
+    backgroundColor: "#f2f2f2",
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
+    position: "relative",
   },
+  image: { width: "100%", height: "100%" },
+  imagePlaceholder: { color: "#999", fontStyle: "italic" },
 
-  nome: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: COLORS.primaryDark,
-    marginBottom: 4,
+  badge: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor: COLORS.danger,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    elevation: 3,
   },
+  badgeText: { color: COLORS.textLight, fontWeight: "bold", fontSize: 12 },
 
-  text: {
-    color: COLORS.text,
-  },
+  info: { marginBottom: 10 },
+  nome: { fontSize: 16, fontWeight: "bold", color: COLORS.primaryDark, marginBottom: 4 },
+  text: { color: COLORS.text },
 
-  actionsRow: {
-    flexDirection: "row",
-    gap: 8,
-  },
-
-  btn: {
-    flex: 1,
-  },
+  actionsRow: { flexDirection: "row", gap: 8 },
+  btn: { flex: 1 },
 });

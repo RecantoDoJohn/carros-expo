@@ -1,40 +1,91 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, StyleSheet, Alert, Image } from "react-native";
+import React, { useEffect, useState, useCallback } from "react";
+import { View, Text, FlatList, StyleSheet, Alert } from "react-native";
+import { useFocusEffect } from "expo-router";
+import * as ImagePicker from "expo-image-picker";
+
+import { COLORS } from "../../src/theme/colors";
 import { initDB } from "../../src/database";
 import { CarroService } from "../../src/services/carroService";
+
 import CarroForm from "../../src/components/CarroForm";
 import CarroItem from "../../src/components/CarroItem";
-import { COLORS } from "../../src/theme/colors";
-
-
 
 export default function CarrosScreen() {
   const [marca, setMarca] = useState("");
   const [modelo, setModelo] = useState("");
   const [ano, setAno] = useState("");
   const [preco, setPreco] = useState("");
+  const [imagemUri, setImagemUri] = useState<string | null>(null);
+
   const [listaCarros, setListaCarros] = useState<any[]>([]);
   const [idEdicao, setIdEdicao] = useState<number | null>(null);
 
   useEffect(() => {
-    const setup = async () => {
+    (async () => {
       await initDB();
       await atualizar();
-    };
-    setup();
+    })();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      atualizar(); // atualiza ao voltar pra aba
+    }, [])
+  );
 
   const atualizar = async () => {
     const carros = await CarroService.listar();
     setListaCarros(carros);
   };
 
+  // 📷 menu câmera/galeria
+  const escolherImagem = () => {
+    Alert.alert("Imagem do carro", "Como você quer adicionar a imagem?", [
+      { text: "Cancelar", style: "cancel" },
+      { text: "Tirar foto", onPress: tirarFoto },
+      { text: "Escolher da galeria", onPress: escolherDaGaleria },
+    ]);
+  };
+
+  const escolherDaGaleria = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("Permissão", "Permita acesso às fotos para selecionar uma imagem.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+    allowsEditing: true,
+    quality: 0.8,
+  });
+
+
+    if (!result.canceled) setImagemUri(result.assets[0].uri);
+  };
+
+  const tirarFoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("Permissão", "Permita acesso à câmera para tirar foto.");
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      quality: 0.8,
+    });
+
+    if (!result.canceled) setImagemUri(result.assets[0].uri);
+  };
+
   const salvar = async () => {
     try {
-      await CarroService.salvar({ id: idEdicao, marca, modelo, ano, preco });
+      await CarroService.salvar({ id: idEdicao, marca, modelo, ano, preco, imagemUri });
+
       Alert.alert("Sucesso", idEdicao ? "Carro atualizado!" : "Carro cadastrado!");
       setIdEdicao(null);
-      setMarca(""); setModelo(""); setAno(""); setPreco("");
+      setMarca(""); setModelo(""); setAno(""); setPreco(""); setImagemUri(null);
+
       atualizar();
     } catch (e: any) {
       Alert.alert("Erro", e.message || "Não foi possível salvar.");
@@ -47,6 +98,7 @@ export default function CarrosScreen() {
     setModelo(car.modelo);
     setAno(String(car.ano));
     setPreco(String(car.preco));
+    setImagemUri(car.imagemUri ?? null);
   };
 
   const excluir = async (id: number) => {
@@ -62,13 +114,14 @@ export default function CarrosScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Carros</Text>
-      
 
       <CarroForm
         marca={marca} setMarca={setMarca}
         modelo={modelo} setModelo={setModelo}
         ano={ano} setAno={setAno}
         preco={preco} setPreco={setPreco}
+        imagemUri={imagemUri}
+        onPickImage={escolherImagem}
         onSalvar={salvar}
       />
 
@@ -78,12 +131,7 @@ export default function CarrosScreen() {
         data={listaCarros}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <CarroItem
-            item={item}
-            onEditar={editar}
-            onExcluir={excluir}
-            onToggleVendido={toggle}
-          />
+          <CarroItem item={item} onEditar={editar} onExcluir={excluir} onToggleVendido={toggle} />
         )}
       />
     </View>
@@ -91,26 +139,7 @@ export default function CarrosScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    paddingTop: 50,
-    backgroundColor: COLORS.background,
-  },
-
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 10,
-    textAlign: "center",
-    color: COLORS.primaryDark,
-  },
-
-  subtitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginTop: 20,
-    marginBottom: 10,
-    color: COLORS.primary,
-  },
+  container: { flex: 1, padding: 20, paddingTop: 50, backgroundColor: COLORS.background },
+  title: { fontSize: 26, fontWeight: "bold", textAlign: "center", color: COLORS.primaryDark, marginBottom: 10 },
+  subtitle: { fontSize: 18, fontWeight: "bold", marginTop: 18, marginBottom: 10, color: COLORS.primary },
 });

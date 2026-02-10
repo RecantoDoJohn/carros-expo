@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, StyleSheet, Alert } from "react-native";
+
+import { COLORS } from "../../src/theme/colors";
 import { initDB } from "../../src/database";
 import { VendaService } from "../../src/services/vendaService";
+
 import VendaForm from "../../src/components/VendaForm";
 import VendaItem from "../../src/components/VendaItem";
-import { COLORS } from "../../src/theme/colors";
-
 
 export default function VendasScreen() {
   const [carroId, setCarroId] = useState("");
@@ -15,11 +16,10 @@ export default function VendasScreen() {
   const [idEdicao, setIdEdicao] = useState<number | null>(null);
 
   useEffect(() => {
-    const setup = async () => {
+    (async () => {
       await initDB();
       await atualizar();
-    };
-    setup();
+    })();
   }, []);
 
   const atualizar = async () => {
@@ -36,7 +36,7 @@ export default function VendasScreen() {
         descricao,
       });
 
-      Alert.alert("Sucesso", idEdicao ? "Venda atualizada!" : "Venda cadastrada! (Carro marcado como vendido ✅)");
+      Alert.alert("Sucesso", idEdicao ? "Venda atualizada!" : "Venda cadastrada! (Carro vendido ✅)");
       setIdEdicao(null);
       setCarroId("");
       setDataVenda("");
@@ -78,36 +78,14 @@ export default function VendasScreen() {
       <FlatList
         data={listaVendas}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <VendaItem item={item} onEditar={editar} onExcluir={excluir} />
-        )}
+        renderItem={({ item }) => <VendaItem item={item} onEditar={editar} onExcluir={excluir} />}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    paddingTop: 50,
-    backgroundColor: COLORS.background,
-  },
-
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 10,
-    textAlign: "center",
-    color: COLORS.primaryDark,
-  },
-
-  subtitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginTop: 20,
-    marginBottom: 10,
-    color: COLORS.primary,
-  },
+  container: { flex: 1, padding: 20, paddingTop: 50, backgroundColor: COLORS.background },
+  title: { fontSize: 26, fontWeight: "bold", textAlign: "center", color: COLORS.primaryDark, marginBottom: 10 },
+  subtitle: { fontSize: 18, fontWeight: "bold", marginTop: 18, marginBottom: 10, color: COLORS.primary },
 });
-

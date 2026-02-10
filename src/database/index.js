@@ -6,6 +6,7 @@ const getDB = async () => {
 
 export const initDB = async () => {
   const db = await getDB();
+
   await db.execAsync(`
     PRAGMA journal_mode = WAL;
 
@@ -15,12 +16,8 @@ export const initDB = async () => {
       modelo TEXT NOT NULL,
       ano INTEGER NOT NULL,
       preco REAL NOT NULL,
-      vendido INTEGER NOT NULL DEFAULT 0
-    );
-
-    CREATE TABLE IF NOT EXISTS clientes (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      nome TEXT NOT NULL
+      vendido INTEGER NOT NULL DEFAULT 0,
+      imagemUri TEXT
     );
 
     CREATE TABLE IF NOT EXISTS vendas (
@@ -31,13 +28,22 @@ export const initDB = async () => {
       FOREIGN KEY (carro_id) REFERENCES carros(id)
     );
   `);
+
+  // garante coluna imagemUri em bancos antigos
+  const cols = await db.getAllAsync(`PRAGMA table_info(carros)`);
+  const temImagem = cols.some((c) => c.name === "imagemUri");
+  if (!temImagem) {
+    await db.execAsync(`ALTER TABLE carros ADD COLUMN imagemUri TEXT;`);
+  }
 };
 
-export const addCarro = async (marca, modelo, ano, preco) => {
+/* =================== CARROS =================== */
+
+export const addCarro = async (marca, modelo, ano, preco, imagemUri) => {
   const db = await getDB();
   const result = await db.runAsync(
-    "INSERT INTO carros (marca, modelo, ano, preco, vendido) VALUES (?, ?, ?, ?, 0)",
-    [marca, modelo, ano, preco]
+    "INSERT INTO carros (marca, modelo, ano, preco, vendido, imagemUri) VALUES (?, ?, ?, ?, 0, ?)",
+    [marca, modelo, ano, preco, imagemUri ?? null]
   );
   return result.lastInsertRowId;
 };
@@ -47,23 +53,25 @@ export const getCarros = async () => {
   return await db.getAllAsync("SELECT * FROM carros ORDER BY id DESC");
 };
 
+export const updateCarro = async (id, marca, modelo, ano, preco, imagemUri) => {
+  const db = await getDB();
+  await db.runAsync(
+    "UPDATE carros SET marca = ?, modelo = ?, ano = ?, preco = ?, imagemUri = ? WHERE id = ?",
+    [marca, modelo, ano, preco, imagemUri ?? null, id]
+  );
+};
+
 export const deleteCarro = async (id) => {
   const db = await getDB();
   await db.runAsync("DELETE FROM carros WHERE id = ?", [id]);
-};
-
-export const updateCarro = async (id, marca, modelo, ano, preco) => {
-  const db = await getDB();
-  await db.runAsync(
-    "UPDATE carros SET marca = ?, modelo = ?, ano = ?, preco = ? WHERE id = ?",
-    [marca, modelo, ano, preco, id]
-  );
 };
 
 export const toggleVendido = async (id, vendido) => {
   const db = await getDB();
   await db.runAsync("UPDATE carros SET vendido = ? WHERE id = ?", [vendido, id]);
 };
+
+/* =================== VENDAS =================== */
 
 export const addVenda = async (carro_id, data, descricao) => {
   const db = await getDB();
@@ -88,13 +96,8 @@ export const getVendas = async () => {
       carros.preco AS preco_carro
     FROM vendas
     JOIN carros ON carros.id = vendas.carro_id
-    ORDER BY vendas.data DESC
+    ORDER BY vendas.id DESC
   `);
-};
-
-export const deleteVenda = async (id) => {
-  const db = await getDB();
-  await db.runAsync("DELETE FROM vendas WHERE id = ?", [id]);
 };
 
 export const updateVenda = async (id, carro_id, data, descricao) => {
@@ -105,29 +108,7 @@ export const updateVenda = async (id, carro_id, data, descricao) => {
   );
 };
 
-export const addCliente = async (nome) => {
+export const deleteVenda = async (id) => {
   const db = await getDB();
-  const result = await db.runAsync(
-    "INSERT INTO clientes (nome) VALUES (?)",
-    [nome]
-  );
-  return result.lastInsertRowId;
-};
-
-export const getClientes = async () => {
-  const db = await getDB();
-  return await db.getAllAsync("SELECT * FROM clientes ORDER BY id DESC");
-};
-
-export const deleteCliente = async (id) => {
-  const db = await getDB();
-  await db.runAsync("DELETE FROM clientes WHERE id = ?", [id]);
-};
-
-export const updateCliente = async (id, nome) => {
-  const db = await getDB();
-  await db.runAsync(
-    "UPDATE clientes SET nome = ? WHERE id = ?",
-    [nome, id]
-  );
+  await db.runAsync("DELETE FROM vendas WHERE id = ?", [id]);
 };
