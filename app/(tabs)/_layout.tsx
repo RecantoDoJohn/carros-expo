@@ -1,34 +1,44 @@
 import { Tabs } from "expo-router";
-import { COLORS } from "../../src/theme/colors";
 import { Image } from "react-native";
+import { COLORS } from "../../src/theme/colors";
 
 export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerStyle: { backgroundColor: "#000" },
+        headerStyle: { backgroundColor: COLORS.text },
         headerTintColor: COLORS.textLight,
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: "#999",
+        headerTitleAlign: "center",
 
+        // 👇 LOGO NO LUGAR DO TEXTO
         headerTitle: () => (
           <Image
-            source={require("../../assets/dj-alma.png")}
-            style={{ width: 170, height: 140 }}
-            resizeMode="contain"
+            source={require("../../assets/logo.png")}
+            style={{
+              width: 160,
+              height: 45,
+              resizeMode: "contain",
+            }}
           />
         ),
 
-        headerTitleContainerStyle: {
-          paddingLeft: 0,
-          marginLeft: 0,
-        },
+        tabBarActiveTintColor: COLORS.primary,
+        tabBarInactiveTintColor: "#999",
       }}
     >
-      <Tabs.Screen name="carros" options={{ title: "Carros" }} />
-      <Tabs.Screen name="clientes" options={{ title: "Clientes" }} />
-      <Tabs.Screen name="vendas" options={{ title: "Vendas" }} />
+      <Tabs.Screen
+        name="carros"
+        options={{
+          title: "", // remove texto
+        }}
+      />
 
+      <Tabs.Screen
+        name="vendas"
+        options={{
+          title: "",
+        }}
+      />
     </Tabs>
   );
 }
